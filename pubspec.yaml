@@ -63,7 +63,7 @@ flutter:
   fonts:
     - family: Brand-Bold
       fonts:
-        - asset: fonts/bold-semibold.ttf
+        - asset: fonts/bolt-semibold.ttf
     - family: Brand-Regular
       fonts:
         - asset: fonts/bolt-regular.ttf
