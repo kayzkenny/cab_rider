@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cab_rider/screens/login_page.dart';
 import 'package:cab_rider/screens/main_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MainPage(),
+      home: LoginPage(),
     );
   }
 }
