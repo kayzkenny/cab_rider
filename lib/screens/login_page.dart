@@ -1,5 +1,6 @@
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/screens/registration_page.dart';
+import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -70,25 +71,10 @@ class LoginPage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 64),
-              RaisedButton(
-                onPressed: () {},
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
+              TaxiButton(
+                title: 'LOGIN',
                 color: BrandColors.colorGreen,
-                textColor: Colors.white,
-                child: Container(
-                  height: 50,
-                  child: Center(
-                    child: Text(
-                      'LOGIN',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Brand-Bold',
-                      ),
-                    ),
-                  ),
-                ),
+                onPressed: () {},
               ),
               SizedBox(height: 32),
               FlatButton(
