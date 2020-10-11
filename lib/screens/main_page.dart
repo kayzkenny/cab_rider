@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:cab_rider/screens/brand_colors.dart';
+import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MainPage extends StatefulWidget {
@@ -14,6 +15,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController mapController;
+  double mapBottomPadding = 0;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -26,11 +28,13 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         children: [
           GoogleMap(
+            padding: EdgeInsets.only(bottom: mapBottomPadding),
             mapType: MapType.normal,
             initialCameraPosition: _kGooglePlex,
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
               mapController = controller;
+              setState(() => mapBottomPadding = 300);
             },
           ),
           Positioned(
@@ -50,10 +54,7 @@ class _MainPageState extends State<MainPage> {
                     color: Colors.black26,
                     blurRadius: 15.0,
                     spreadRadius: 0.5,
-                    offset: Offset(
-                      0.7,
-                      0.7,
-                    ),
+                    offset: Offset(0.7, 0.7),
                   ),
                 ],
               ),
@@ -87,10 +88,7 @@ class _MainPageState extends State<MainPage> {
                             color: Colors.black12,
                             blurRadius: 5.0,
                             spreadRadius: 0.5,
-                            offset: Offset(
-                              0.7,
-                              0.7,
-                            ),
+                            offset: Offset(0.7, 0.7),
                           )
                         ],
                       ),
@@ -132,7 +130,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    BrandDivider(),
                     Row(
                       children: [
                         Icon(
