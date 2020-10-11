@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity/connectivity.dart';
@@ -50,6 +51,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> registerUser() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ProgressDialog(
+        status: 'Registering you...',
+      ),
+    );
+
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -80,12 +89,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
         );
       }
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'weak-password') {
         showSnackbar('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         showSnackbar('The account already exists for that email.');
       }
     } catch (e) {
+      Navigator.pop(context);
       showSnackbar(e.toString());
     }
   }

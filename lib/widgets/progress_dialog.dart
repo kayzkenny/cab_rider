@@ -35,7 +35,7 @@ class ProgressDialog extends StatelessWidget {
               ),
               SizedBox(width: 25.0),
               Text(
-                'status',
+                status,
                 style: TextStyle(fontSize: 15.0),
               ),
             ],

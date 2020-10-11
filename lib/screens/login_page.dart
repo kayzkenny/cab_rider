@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity/connectivity.dart';
@@ -45,6 +46,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> login() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ProgressDialog(
+        status: 'Logging you in...',
+      ),
+    );
+
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
@@ -60,12 +69,14 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
       if (e.code == 'user-not-found') {
         showSnackbar('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         showSnackbar('Wrong password provided for that user.');
       }
     } catch (e) {
+      Navigator.pop(context);
       showSnackbar(e.toString());
     }
   }
