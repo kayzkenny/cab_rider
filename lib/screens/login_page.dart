@@ -4,7 +4,7 @@ import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
-  static const id = 'login';
+  static const String id = 'login';
 
   @override
   Widget build(BuildContext context) {

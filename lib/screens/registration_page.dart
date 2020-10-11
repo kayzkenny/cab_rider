@@ -11,7 +11,7 @@ import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class RegistrationPage extends StatefulWidget {
-  static const id = 'register';
+  static const String id = 'register';
 
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
