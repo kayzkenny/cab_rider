@@ -1,3 +1,4 @@
+import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -71,7 +72,7 @@ class LoginPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
-                color: Colors.green,
+                color: BrandColors.colorGreen,
                 textColor: Colors.white,
                 child: Container(
                   height: 50,
