@@ -1,18 +1,31 @@
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/screens/login_page.dart';
+import 'package:cab_rider/screens/main_page.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
-class RegistrationPage extends StatelessWidget {
+class RegistrationPage extends StatefulWidget {
   static const id = 'register';
 
+  @override
+  _RegistrationPageState createState() => _RegistrationPageState();
+}
+
+class _RegistrationPageState extends State<RegistrationPage> {
   final _auth = FirebaseAuth.instance;
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
   final formKey = GlobalKey<FormState>();
+
   final fullNameController = TextEditingController();
+
   final phoneController = TextEditingController();
+
   final emailController = TextEditingController();
+
   final passwordController = TextEditingController();
 
   void showSnackbar(String title) {
@@ -33,14 +46,37 @@ class RegistrationPage extends StatelessWidget {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      // check if user registration was successful
+      if (userCredential != null) {
+        DatabaseReference newUserRef = FirebaseDatabase.instance
+            .reference()
+            .child('users/${userCredential.user.uid}');
+
+        // prepare data to be saved on users table
+        Map userMap = {
+          'fullname': fullNameController.text.trim(),
+          'email': emailController.text.trim(),
+          'phone': phoneController.text.trim(),
+        };
+
+        newUserRef.set(userMap);
+
+        // route the user to the main page
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          MainPage.id,
+          (route) => false,
+        );
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        showSnackbar('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        showSnackbar('The account already exists for that email.');
       }
     } catch (e) {
-      print(e);
+      showSnackbar(e.toString());
     }
   }
 
