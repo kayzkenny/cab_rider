@@ -1,7 +1,7 @@
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class RegistrationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +21,7 @@ class LoginPage extends StatelessWidget {
               ),
               SizedBox(height: 32),
               Text(
-                'Sign In as a Rider',
+                'Create a Rider\'s Account',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -35,6 +35,40 @@ class LoginPage extends StatelessWidget {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email Address',
+                      labelStyle: TextStyle(
+                        fontSize: 14.0,
+                      ),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 10.0,
+                      ),
+                    ),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      labelStyle: TextStyle(
+                        fontSize: 14.0,
+                      ),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 10.0,
+                      ),
+                    ),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
                       labelStyle: TextStyle(
                         fontSize: 14.0,
                       ),
@@ -90,7 +124,7 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: 32),
               FlatButton(
                 onPressed: () {},
-                child: Text('Don\'t have an account, sign up here'),
+                child: Text('Already have a Rider\'s Account? Log in'),
               ),
             ],
           ),
