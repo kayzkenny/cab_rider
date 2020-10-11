@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final FirebaseApp app = await Firebase.initializeApp(
-    name: 'db2',
+    // name property throws an error on hot restart, default param used instead
+    // name: 'db2',
+    // IOS FirebaseOptions Not Yet Configures
     options: Platform.isIOS || Platform.isMacOS
         ? FirebaseOptions(
             appId: '1:297855924061:ios:c6de2b69b03a5be8',
@@ -40,7 +42,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RegistrationPage(),
+      initialRoute: RegistrationPage.id,
+      routes: {
+        MainPage.id: (context) => MainPage(),
+        LoginPage.id: (context) => LoginPage(),
+        RegistrationPage.id: (context) => RegistrationPage(),
+      },
     );
   }
 }

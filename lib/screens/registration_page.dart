@@ -1,7 +1,10 @@
 import 'package:cab_rider/screens/brand_colors.dart';
+import 'package:cab_rider/screens/login_page.dart';
 import 'package:flutter/material.dart';
 
 class RegistrationPage extends StatelessWidget {
+  static const id = 'register';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +126,13 @@ class RegistrationPage extends StatelessWidget {
               ),
               SizedBox(height: 32),
               FlatButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    LoginPage.id,
+                    (route) => false,
+                  );
+                },
                 child: Text('Already have a Rider\'s Account? Log in'),
               ),
             ],
