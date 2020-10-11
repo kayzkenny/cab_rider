@@ -126,21 +126,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   void _updateConnectionStatus(ConnectivityResult result) {
     setState(() => _connectionStatus = result);
-    scaffoldKey.currentState.showSnackBar(
-      SnackBar(
-        content: Text(
-          result == ConnectivityResult.wifi || result == ConnectivityResult.wifi
-              ? 'You are Online'
-              : 'You are Offline',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15),
+    if (scaffoldKey.currentState != null) {
+      scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(
+            result == ConnectivityResult.wifi ||
+                    result == ConnectivityResult.wifi
+                ? 'You are Online'
+                : 'You are Offline',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15),
+          ),
+          backgroundColor: result == ConnectivityResult.wifi ||
+                  result == ConnectivityResult.wifi
+              ? Colors.green[900]
+              : Colors.red[700],
         ),
-        backgroundColor: result == ConnectivityResult.wifi ||
-                result == ConnectivityResult.wifi
-            ? Colors.greenAccent
-            : Colors.redAccent,
-      ),
-    );
+      );
+    }
     print('connection status changed to: ${result.toString()}');
   }
 
