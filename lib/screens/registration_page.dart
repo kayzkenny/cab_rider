@@ -1,10 +1,14 @@
-import 'package:cab_rider/screens/brand_colors.dart';
-import 'package:cab_rider/screens/login_page.dart';
-import 'package:cab_rider/screens/main_page.dart';
-import 'package:cab_rider/widgets/taxi_button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'dart:async';
+
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:cab_rider/screens/main_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cab_rider/screens/login_page.dart';
+import 'package:cab_rider/widgets/taxi_button.dart';
+import 'package:cab_rider/screens/brand_colors.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class RegistrationPage extends StatefulWidget {
   static const id = 'register';
@@ -14,7 +18,13 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  ConnectivityResult _connectionStatus;
+
+  StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   final _auth = FirebaseAuth.instance;
+
+  final Connectivity _connectivity = Connectivity();
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -78,6 +88,60 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } catch (e) {
       showSnackbar(e.toString());
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initConnectivity() async {
+    ConnectivityResult result;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e.toString());
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  void _updateConnectionStatus(ConnectivityResult result) {
+    setState(() => _connectionStatus = result);
+    scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(
+          result == ConnectivityResult.wifi || result == ConnectivityResult.wifi
+              ? 'You are Online'
+              : 'You are Offline',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 15),
+        ),
+        backgroundColor: result == ConnectivityResult.wifi ||
+                result == ConnectivityResult.wifi
+            ? Colors.greenAccent
+            : Colors.redAccent,
+      ),
+    );
+    print('connection status changed to: ${result.toString()}');
   }
 
   @override
@@ -205,6 +269,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 color: BrandColors.colorGreen,
                 onPressed: () async {
                   if (formKey.currentState.validate()) {
+                    if (_connectionStatus != ConnectivityResult.mobile &&
+                        _connectionStatus != ConnectivityResult.wifi) {
+                      showSnackbar('No Internet Connection');
+                      return;
+                    }
                     await registerUser();
                   }
                 },
