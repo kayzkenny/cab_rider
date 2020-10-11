@@ -1,14 +1,53 @@
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/screens/login_page.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegistrationPage extends StatelessWidget {
   static const id = 'register';
 
+  final _auth = FirebaseAuth.instance;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final formKey = GlobalKey<FormState>();
+  final fullNameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  void showSnackbar(String title) {
+    final snackbar = SnackBar(
+      content: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 15),
+      ),
+    );
+    scaffoldKey.currentState.showSnackBar(snackbar);
+  }
+
+  Future<void> registerUser() async {
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -33,82 +72,106 @@ class RegistrationPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 32),
-              Column(
-                children: [
-                  TextField(
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'Email Address',
-                      labelStyle: TextStyle(
+              Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: emailController,
+                      validator: (value) =>
+                          value.isEmpty || !value.contains('@')
+                              ? 'Enter a valid email address'
+                              : null,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: 'Email Address',
+                        labelStyle: TextStyle(
+                          fontSize: 14.0,
+                        ),
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 10.0,
+                        ),
+                      ),
+                      style: TextStyle(
                         fontSize: 14.0,
                       ),
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10.0,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: fullNameController,
+                      validator: (value) => value.length < 8
+                          ? 'Enter a full name at least 6 characters long'
+                          : null,
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        labelStyle: TextStyle(
+                          fontSize: 14.0,
+                        ),
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 10.0,
+                        ),
                       ),
-                    ),
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      labelStyle: TextStyle(
+                      style: TextStyle(
                         fontSize: 14.0,
                       ),
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10.0,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: phoneController,
+                      validator: (value) => value.length < 8
+                          ? 'Enter a phone number at least 10 characters long'
+                          : null,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(
+                          fontSize: 14.0,
+                        ),
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 10.0,
+                        ),
                       ),
-                    ),
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      labelStyle: TextStyle(
+                      style: TextStyle(
                         fontSize: 14.0,
                       ),
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10.0,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: passwordController,
+                      validator: (value) => value.length < 8
+                          ? 'Enter a password at least 8 characters long'
+                          : null,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          fontSize: 14.0,
+                        ),
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 10.0,
+                        ),
                       ),
-                    ),
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(
+                      style: TextStyle(
                         fontSize: 14.0,
                       ),
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10.0,
-                      ),
                     ),
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               SizedBox(height: 64),
               TaxiButton(
                 title: 'REGISTER',
                 color: BrandColors.colorGreen,
-                onPressed: () {},
+                onPressed: () async {
+                  if (formKey.currentState.validate()) {
+                    await registerUser();
+                  }
+                },
               ),
               SizedBox(height: 32),
               FlatButton(
