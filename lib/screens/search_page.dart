@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 
 class SearchPage extends StatefulWidget {
@@ -9,8 +11,26 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final focusDestination = FocusNode();
+  final pickupController = TextEditingController();
+  final destinationController = TextEditingController();
+
+  bool focused = false;
+
+  void setFocus() {
+    if (!focused) {
+      FocusScope.of(context).requestFocus(focusDestination);
+      focused = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    pickupController.text =
+        Provider.of<AppData>(context).pickupAddress?.placeName ?? "";
+
+    setFocus();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -63,6 +83,7 @@ class _SearchPageState extends State<SearchPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: TextFormField(
+                          controller: pickupController,
                           decoration: InputDecoration(
                             filled: true,
                             isDense: true,
@@ -94,6 +115,8 @@ class _SearchPageState extends State<SearchPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: TextFormField(
+                          focusNode: focusDestination,
+                          controller: destinationController,
                           decoration: InputDecoration(
                             filled: true,
                             isDense: true,
