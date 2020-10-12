@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cab_rider/models/prediction.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cab_rider/shared/api_keys.dart';
@@ -37,7 +38,15 @@ class _SearchPageState extends State<SearchPage> {
         return;
       }
 
-      print(response);
+      if (response['status'] == 'OK') {
+        var predicitionJson = response['predicitions'];
+
+        var thisList = (predicitionJson as List)
+            .map(
+              (e) => Prediction.fromJson(e),
+            )
+            .toList();
+      }
     }
   }
 
