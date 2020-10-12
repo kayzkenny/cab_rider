@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cab_rider/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
@@ -22,9 +23,97 @@ class _MainPageState extends State<MainPage> {
     zoom: 14.4746,
   );
 
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
+      drawer: Container(
+        width: 250,
+        color: Colors.white,
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.all(0),
+            children: [
+              Container(
+                height: 160,
+                color: Colors.white,
+                child: DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.white),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'images/user_icon.png',
+                        height: 60,
+                        width: 60,
+                      ),
+                      SizedBox(width: 15),
+                      Container(
+                        width: 140,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Kenny',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Brand-Bold',
+                              ),
+                              overflow: TextOverflow.clip,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'View Profile',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // BrandDivider(),
+              ListTile(
+                leading: Icon(Icons.card_giftcard_outlined),
+                title: Text(
+                  'Free Rides',
+                  style: kDrawerItemStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.credit_card_outlined),
+                title: Text(
+                  'Payments',
+                  style: kDrawerItemStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.history_outlined),
+                title: Text(
+                  'Ride History',
+                  style: kDrawerItemStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.contact_support_outlined),
+                title: Text(
+                  'Support',
+                  style: kDrawerItemStyle,
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text(
+                  'About',
+                  style: kDrawerItemStyle,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           GoogleMap(
@@ -36,6 +125,35 @@ class _MainPageState extends State<MainPage> {
               mapController = controller;
               setState(() => mapBottomPadding = 300);
             },
+          ),
+          Positioned(
+            top: 44,
+            left: 20,
+            child: GestureDetector(
+              onTap: () => scaffoldKey.currentState.openDrawer(),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5.0,
+                      spreadRadius: 0.5,
+                      offset: Offset(0.7, 0.7),
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 20,
+                  child: Icon(
+                    Icons.menu_outlined,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
           ),
           Positioned(
             left: 0,
