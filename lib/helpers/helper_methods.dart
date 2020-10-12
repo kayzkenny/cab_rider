@@ -22,7 +22,7 @@ class HelperMethods {
     }
 
     String url =
-        '$googleMapsEndpoint=${position.latitude},${position.longitude}&key=$googleMapsKey';
+        '$googleMapsEndpoint?latlng=${position.latitude},${position.longitude}&key=$googleMapsKey';
 
     var response = await RequestHelper.getRequest(url);
 
