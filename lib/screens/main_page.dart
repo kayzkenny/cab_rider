@@ -49,7 +49,10 @@ class _MainPageState extends State<MainPage> {
       CameraUpdate.newCameraPosition(cp),
     );
 
-    String address = await HelperMethods.findCoordinateAddress(position);
+    String address = await HelperMethods.findCoordinateAddress(
+      position,
+      context,
+    );
     print(address);
   }
 
