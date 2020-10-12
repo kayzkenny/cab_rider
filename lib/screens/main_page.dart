@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:cab_rider/styles/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:cab_rider/styles/styles.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -17,6 +18,7 @@ class _MainPageState extends State<MainPage> {
   Completer<GoogleMapController> _controller = Completer();
   GoogleMapController mapController;
   double mapBottomPadding = 0;
+  Position currentPosition;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -24,6 +26,28 @@ class _MainPageState extends State<MainPage> {
   );
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> setupPositionLocator() async {
+    Position position = await getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+    );
+
+    currentPosition = position;
+
+    LatLng pos = LatLng(
+      position.latitude,
+      position.longitude,
+    );
+
+    CameraPosition cp = CameraPosition(
+      target: pos,
+      zoom: 14,
+    );
+
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(cp),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,11 +143,16 @@ class _MainPageState extends State<MainPage> {
           GoogleMap(
             padding: EdgeInsets.only(bottom: mapBottomPadding),
             mapType: MapType.normal,
+            myLocationEnabled: true,
+            zoomGesturesEnabled: true,
+            zoomControlsEnabled: true,
+            myLocationButtonEnabled: true,
             initialCameraPosition: _kGooglePlex,
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
               mapController = controller;
               setState(() => mapBottomPadding = 300);
+              setupPositionLocator();
             },
           ),
           Positioned(
