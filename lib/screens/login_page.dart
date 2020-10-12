@@ -122,14 +122,14 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(
           content: Text(
             result == ConnectivityResult.wifi ||
-                    result == ConnectivityResult.wifi
+                    result == ConnectivityResult.mobile
                 ? 'You are Online'
                 : 'You are Offline',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15),
           ),
           backgroundColor: result == ConnectivityResult.wifi ||
-                  result == ConnectivityResult.wifi
+                  result == ConnectivityResult.mobile
               ? Colors.green[900]
               : Colors.red[700],
         ),
