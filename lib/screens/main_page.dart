@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cab_rider/styles/styles.dart';
@@ -47,6 +48,9 @@ class _MainPageState extends State<MainPage> {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(cp),
     );
+
+    String address = await HelperMethods.findCoordinateAddress(position);
+    print(address);
   }
 
   @override
