@@ -2,8 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cab_rider/shared/api_keys.dart';
 import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
+import 'package:cab_rider/helpers/request_helper.dart';
+import 'package:cab_rider/shared/global_variables.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -21,6 +24,20 @@ class _SearchPageState extends State<SearchPage> {
     if (!focused) {
       FocusScope.of(context).requestFocus(focusDestination);
       focused = true;
+    }
+  }
+
+  Future<void> searchPlace(String placeName) async {
+    if (placeName.length > 1) {
+      String url =
+          '$googlePlacesEndpoint=$placeName&key=$googleMapsKey&sessiontoken=1234567890&components=country:ng';
+      var response = await RequestHelper.getRequest(url);
+
+      if (response == 'failed') {
+        return;
+      }
+
+      print(response);
     }
   }
 
@@ -115,6 +132,7 @@ class _SearchPageState extends State<SearchPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: TextFormField(
+                          onChanged: (value) => searchPlace(value),
                           focusNode: focusDestination,
                           controller: destinationController,
                           decoration: InputDecoration(
