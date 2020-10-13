@@ -28,6 +28,8 @@ class _MainPageState extends State<MainPage> {
 
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
+  Set<Marker> _markers = {};
+  Set<Circle> _circles = {};
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -160,6 +162,54 @@ class _MainPageState extends State<MainPage> {
     mapController.animateCamera(
       CameraUpdate.newLatLngBounds(bounds, 70),
     );
+
+    Marker pickupMarker = Marker(
+      position: pickLatLng,
+      markerId: MarkerId('pickup'),
+      infoWindow: InfoWindow(
+        title: pickup.placeName,
+        snippet: 'My Location',
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    );
+
+    Marker destinationMarker = Marker(
+      position: destinationLatLng,
+      markerId: MarkerId('destination'),
+      infoWindow: InfoWindow(
+        title: destination.placeName,
+        snippet: 'Destination',
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+    );
+
+    setState(() {
+      _markers.add(pickupMarker);
+      _markers.add(destinationMarker);
+    });
+
+    Circle pickupCircle = Circle(
+      circleId: CircleId('pickup'),
+      strokeColor: BrandColors.colorGreen,
+      strokeWidth: 3,
+      radius: 12,
+      center: pickLatLng,
+      fillColor: BrandColors.colorGreen,
+    );
+
+    Circle destinationCircle = Circle(
+      circleId: CircleId('destination'),
+      strokeColor: BrandColors.colorAccentPurple,
+      strokeWidth: 3,
+      radius: 12,
+      center: pickLatLng,
+      fillColor: BrandColors.colorAccentPurple,
+    );
+
+    setState(() {
+      _circles.add(pickupCircle);
+      _circles.add(destinationCircle);
+    });
   }
 
   @override
@@ -254,6 +304,8 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         children: [
           GoogleMap(
+            markers: _markers,
+            circles: _circles,
             polylines: _polylines,
             mapType: MapType.normal,
             myLocationEnabled: true,
