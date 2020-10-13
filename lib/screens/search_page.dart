@@ -35,7 +35,7 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> searchPlace(String placeName) async {
     if (placeName.length > 1) {
       String url =
-          '$googlePlacesEndpoint?input=$placeName&key=$googleMapsKey&sessiontoken=1234567890&components=country:ng';
+          '$placesEndpoint?input=$placeName&key=$googleMapsKey&sessiontoken=1234567890&components=country:ng';
       var response = await RequestHelper.getRequest(url);
 
       if (response == 'failed') {

@@ -24,8 +24,7 @@ class PredictionTile extends StatelessWidget {
       builder: (context) => ProgressDialog(status: 'Please wait...'),
     );
 
-    String url =
-        '$googlePlaceDetailsEndpoint?place_id=$placeId&key=$googleMapsKey';
+    String url = '$placeDetailsEndpoint?place_id=$placeId&key=$googleMapsKey';
 
     var response = await RequestHelper.getRequest(url);
 

@@ -1,7 +1,5 @@
-String googleMapsEndpoint = 'https://maps.googleapis.com/maps/api/geocode/json';
-String googlePlacesEndpoint =
-    'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-String googlePlaceDetailsEndpoint =
-    'https://maps.googleapis.com/maps/api/place/details/json';
-String googleDirectionsEndpoint =
-    'https://maps.googleapis.com/maps/api/directions/json';
+String googleMapsEndpoint = 'https://maps.googleapis.com/maps/api';
+String geocodeEndpoint = '$googleMapsEndpoint/geocode/json';
+String placesEndpoint = '$googleMapsEndpoint/place/autocomplete/json';
+String placeDetailsEndpoint = '$googleMapsEndpoint/place/details/json';
+String directionsEndpoint = '$googleMapsEndpoint/directions/json';
