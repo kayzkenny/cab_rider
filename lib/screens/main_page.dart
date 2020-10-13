@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cab_rider/styles/styles.dart';
 import 'package:cab_rider/providers/app_data.dart';
+import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:cab_rider/screens/search_page.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
@@ -219,6 +220,8 @@ class _MainPageState extends State<MainPage> {
       drawer: Container(
         width: 250,
         color: Colors.white,
+
+        /// Navigation Drawer
         child: Drawer(
           child: ListView(
             padding: EdgeInsets.all(0),
@@ -303,6 +306,7 @@ class _MainPageState extends State<MainPage> {
       ),
       body: Stack(
         children: [
+          /// Google Map
           GoogleMap(
             markers: _markers,
             circles: _circles,
@@ -321,6 +325,8 @@ class _MainPageState extends State<MainPage> {
               setupPositionLocator();
             },
           ),
+
+          /// Navigation Menu
           Positioned(
             top: 44,
             left: 20,
@@ -350,6 +356,8 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
           ),
+
+          /// SearchSheet
           Positioned(
             left: 0,
             right: 0,
@@ -483,6 +491,105 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
+
+          /// RideDetails Sheet
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: 300,
+              padding: EdgeInsets.symmetric(vertical: 18.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 15.0,
+                      spreadRadius: 0.5,
+                      offset: Offset(0.7, 0.7)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    color: BrandColors.colorAccent1,
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/taxi.png',
+                          height: 70,
+                          width: 70,
+                        ),
+                        SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Taxi',
+                              style: TextStyle(
+                                  fontSize: 18, fontFamily: 'Brand-Bold'),
+                            ),
+                            Text(
+                              '14km',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: BrandColors.colorTextLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Spacer(),
+                        Text(
+                          '\$13',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Brand-Bold',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.monetization_on_outlined,
+                          size: 18,
+                          color: BrandColors.colorTextLight,
+                        ),
+                        SizedBox(width: 4),
+                        Text('Cash'),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: BrandColors.colorTextLight,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: TaxiButton(
+                      title: 'REQUEST CAB',
+                      color: BrandColors.colorGreen,
+                      onPressed: () {},
+                    ),
+                  )
+                ],
               ),
             ),
           ),
