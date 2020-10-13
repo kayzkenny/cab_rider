@@ -11,6 +11,7 @@ import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:cab_rider/widgets/progress_dialog.dart';
+import 'package:cab_rider/shared/global_variables.dart';
 import 'package:cab_rider/models/direction_details.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -35,11 +36,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
   DirectionDetails tripDirectionDetails;
-
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
+  bool drawerCanOpen = true;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -224,8 +221,23 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     setState(() {
       searchSheetHeight = 0;
       rideDetailsSheetHeight = 270;
+      drawerCanOpen = false;
       // mapBottomPadding = 0; depends on platfrom
     });
+  }
+
+  resetApp() {
+    setState(() {
+      polylineCoordinates.clear();
+      _polylines.clear();
+      _markers.clear();
+      _circles.clear();
+      rideDetailsSheetHeight = 0;
+      searchSheetHeight = 300;
+      drawerCanOpen = true;
+    });
+
+    setupPositionLocator();
   }
 
   @override
@@ -331,7 +343,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             zoomGesturesEnabled: true,
             zoomControlsEnabled: true,
             myLocationButtonEnabled: true,
-            initialCameraPosition: _kGooglePlex,
+            initialCameraPosition: googlePlex,
             padding: EdgeInsets.only(bottom: mapBottomPadding),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
@@ -346,7 +358,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             top: 44,
             left: 20,
             child: GestureDetector(
-              onTap: () => scaffoldKey.currentState.openDrawer(),
+              onTap: () => (drawerCanOpen)
+                  ? scaffoldKey.currentState.openDrawer()
+                  : resetApp(),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -364,7 +378,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   backgroundColor: Colors.white,
                   radius: 20,
                   child: Icon(
-                    Icons.menu_outlined,
+                    (drawerCanOpen) ? Icons.menu_outlined : Icons.arrow_back,
                     color: Colors.black87,
                   ),
                 ),
