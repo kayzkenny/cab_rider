@@ -11,6 +11,7 @@ import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class MainPage extends StatefulWidget {
   static const String id = 'mainpage';
@@ -24,6 +25,9 @@ class _MainPageState extends State<MainPage> {
   GoogleMapController mapController;
   double mapBottomPadding = 0;
   Position currentPosition;
+
+  List<LatLng> polylineCoordinates = [];
+  Set<Polyline> _polylines = {};
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -83,7 +87,37 @@ class _MainPageState extends State<MainPage> {
 
     Navigator.pop(context);
 
-    print(thisDetails.encodedPoints);
+    PolylinePoints polylinePoints = PolylinePoints();
+    List<PointLatLng> results = polylinePoints.decodePolyline(
+      thisDetails.encodedPoints,
+    );
+
+    polylineCoordinates.clear();
+
+    if (results.isNotEmpty) {
+      // loop through all PointLatLng points and convert them
+      // to a list of LatLng, required by the Polyline
+      results.forEach((point) {
+        polylineCoordinates.add(
+          LatLng(point.latitude, point.longitude),
+        );
+      });
+    }
+
+    _polylines.clear();
+
+    Polyline polyline = Polyline(
+      polylineId: PolylineId('polyid'),
+      color: Color.fromARGB(255, 95, 109, 237),
+      points: polylineCoordinates,
+      jointType: JointType.round,
+      width: 4,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      geodesic: true,
+    );
+
+    setState(() => _polylines.add(polyline));
   }
 
   @override
@@ -178,13 +212,14 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         children: [
           GoogleMap(
-            padding: EdgeInsets.only(bottom: mapBottomPadding),
+            polylines: _polylines,
             mapType: MapType.normal,
             myLocationEnabled: true,
             zoomGesturesEnabled: true,
             zoomControlsEnabled: true,
             myLocationButtonEnabled: true,
             initialCameraPosition: _kGooglePlex,
+            padding: EdgeInsets.only(bottom: mapBottomPadding),
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
               mapController = controller;
