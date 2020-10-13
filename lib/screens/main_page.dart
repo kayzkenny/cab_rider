@@ -1,12 +1,15 @@
 import 'dart:async';
 
-import 'package:cab_rider/screens/search_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cab_rider/styles/styles.dart';
+import 'package:cab_rider/providers/app_data.dart';
+import 'package:cab_rider/screens/search_page.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:cab_rider/helpers/helper_methods.dart';
+import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MainPage extends StatefulWidget {
@@ -55,6 +58,32 @@ class _MainPageState extends State<MainPage> {
       context,
     );
     print(address);
+  }
+
+  Future<void> getDirection() async {
+    var pickup = Provider.of<AppData>(context, listen: false).pickupAddress;
+    var destination = Provider.of<AppData>(
+      context,
+      listen: false,
+    ).destinationAddress;
+
+    var pickLatLng = LatLng(pickup.latitude, pickup.longitude);
+    var destinationLatLng = LatLng(destination.latitude, destination.longitude);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ProgressDialog(status: 'Please wait...'),
+    );
+
+    var thisDetails = await HelperMethods.getDirectionDetails(
+      pickLatLng,
+      destinationLatLng,
+    );
+
+    Navigator.pop(context);
+
+    print(thisDetails.encodedPoints);
   }
 
   @override
