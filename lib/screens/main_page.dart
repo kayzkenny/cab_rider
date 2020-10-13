@@ -11,6 +11,7 @@ import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:cab_rider/widgets/progress_dialog.dart';
+import 'package:cab_rider/models/direction_details.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
@@ -33,6 +34,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
+  DirectionDetails tripDirectionDetails;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -89,6 +91,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       pickLatLng,
       destinationLatLng,
     );
+
+    setState(() => tripDirectionDetails = thisDetails);
 
     Navigator.pop(context);
 
@@ -559,23 +563,25 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                                 style: TextStyle(
                                     fontSize: 18, fontFamily: 'Brand-Bold'),
                               ),
-                              Text(
-                                '14km',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: BrandColors.colorTextLight,
+                              if (tripDirectionDetails != null)
+                                Text(
+                                  tripDirectionDetails.distanceText,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: BrandColors.colorTextLight,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                           Spacer(),
-                          Text(
-                            '\$13',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Brand-Bold',
+                          if (tripDirectionDetails != null)
+                            Text(
+                              '\$${HelperMethods.estimateFares(tripDirectionDetails)}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Brand-Bold',
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
