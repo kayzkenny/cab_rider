@@ -1,4 +1,3 @@
-import 'package:cab_rider/models/direction_details.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,6 +7,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/helpers/request_helper.dart';
 import 'package:cab_rider/shared/global_variables.dart';
+import 'package:cab_rider/models/direction_details.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HelperMethods {
@@ -67,5 +67,17 @@ class HelperMethods {
     );
 
     return directionDetails;
+  }
+
+  static int estimateFares(DirectionDetails details) {
+    // per km = $0.3, per min = $0.2, base fare = $3,
+
+    double baseFare = 3;
+    double distanceFare = (details.distanceValue / 1000) * 0.3;
+    double timeFare = (details.durationValue / 60) * 0.2;
+
+    double totalFare = baseFare + distanceFare + timeFare;
+
+    return totalFare.truncate();
   }
 }
