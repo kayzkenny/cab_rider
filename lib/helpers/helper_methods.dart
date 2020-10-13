@@ -54,7 +54,7 @@ class HelperMethods {
         '$directionsEndpoint?origin=${startPosition.latitude},${startPosition.longitude}&destination=${endPosition.latitude},${endPosition.longitude}&mode=driving&key=$googleMapsKey';
     var response = await RequestHelper.getRequest(url);
 
-    if (response != 'failed') {
+    if (response == 'failed') {
       return null;
     }
 

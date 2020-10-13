@@ -264,13 +264,17 @@ class _MainPageState extends State<MainPage> {
                     ),
                     SizedBox(height: 20),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        var response = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => SearchPage(),
                           ),
                         );
+
+                        if (response == 'getDirection') {
+                          await getDirection();
+                        }
                       },
                       child: Container(
                         decoration: BoxDecoration(
