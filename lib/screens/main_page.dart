@@ -32,7 +32,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Position currentPosition;
   double searchSheetHeight = 300;
   double rideDetailsSheetHeight = 0;
-  double requestingSheetHeght = 0;
+  double requestingSheetHeight = 0;
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
@@ -232,7 +232,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Future<void> showRequestingSheet() async {
     setState(() {
       rideDetailsSheetHeight = 0;
-      requestingSheetHeght = 210;
+      requestingSheetHeight = 210;
       mapBottomPadding = 200;
 
       drawerCanOpen = true;
@@ -279,6 +279,8 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     await rideRef.set(rideMap);
   }
 
+  Future<void> cancelRequest() async => await rideRef.remove();
+
   Future<void> resetApp() async {
     setState(() {
       polylineCoordinates.clear();
@@ -286,6 +288,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       _markers.clear();
       _circles.clear();
       rideDetailsSheetHeight = 0;
+      requestingSheetHeight = 0;
       searchSheetHeight = 300;
       drawerCanOpen = true;
     });
@@ -706,7 +709,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               duration: Duration(milliseconds: 150),
               curve: Curves.easeIn,
               child: Container(
-                height: requestingSheetHeght,
+                height: requestingSheetHeight,
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -740,20 +743,26 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          width: 1.0,
-                          color: BrandColors.colorLightGrayFair,
+                    GestureDetector(
+                      onTap: () async {
+                        await cancelRequest();
+                        await resetApp();
+                      },
+                      child: Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            width: 1.0,
+                            color: BrandColors.colorLightGrayFair,
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 25,
+                        child: Icon(
+                          Icons.close,
+                          size: 25,
+                        ),
                       ),
                     ),
                     SizedBox(height: 20),
