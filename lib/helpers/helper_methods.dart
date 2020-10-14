@@ -1,5 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:cab_rider/models/user.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cab_rider/models/address.dart';
 import 'package:cab_rider/shared/api_keys.dart';
@@ -8,6 +9,8 @@ import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/helpers/request_helper.dart';
 import 'package:cab_rider/shared/global_variables.dart';
 import 'package:cab_rider/models/direction_details.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HelperMethods {
@@ -79,5 +82,20 @@ class HelperMethods {
     double totalFare = baseFare + distanceFare + timeFare;
 
     return totalFare.truncate();
+  }
+
+  static Future<void> getCurrentUserInfo() async {
+    currentFirebaseUser = auth.FirebaseAuth.instance.currentUser;
+    String userId = currentFirebaseUser.uid;
+
+    DatabaseReference userRef =
+        FirebaseDatabase.instance.reference().child('users/$userId');
+
+    userRef.once().then((DataSnapshot snapshot) {
+      if (snapshot.value != null) {
+        currentUserInfo = User.fromSnapshot(snapshot);
+        print(currentUserInfo.fullName);
+      }
+    });
   }
 }
