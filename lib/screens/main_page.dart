@@ -14,6 +14,7 @@ import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:cab_rider/shared/global_variables.dart';
 import 'package:cab_rider/models/direction_details.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
@@ -32,13 +33,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   double searchSheetHeight = 300;
   double rideDetailsSheetHeight = 0;
   double requestingSheetHeght = 0;
-
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
   DirectionDetails tripDirectionDetails;
   bool drawerCanOpen = true;
+  DatabaseReference rideRef;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -228,7 +229,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     });
   }
 
-  void showRequestingSheet() {
+  Future<void> showRequestingSheet() async {
     setState(() {
       rideDetailsSheetHeight = 0;
       requestingSheetHeght = 210;
@@ -236,9 +237,49 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
       drawerCanOpen = true;
     });
+
+    await createRideRequest();
   }
 
-  resetApp() {
+  Future<void> createRideRequest() async {
+    rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
+
+    var pickup = Provider.of<AppData>(
+      context,
+      listen: false,
+    ).pickupAddress;
+
+    var destination = Provider.of<AppData>(
+      context,
+      listen: false,
+    ).destinationAddress;
+
+    Map<String, dynamic> pickupMap = {
+      'latitude': pickup.latitude.toString(),
+      'longitude': pickup.longitude.toString(),
+    };
+
+    Map<String, dynamic> destinationMap = {
+      'latitude': destination.latitude.toString(),
+      'longitude': destination.longitude.toString(),
+    };
+
+    Map<String, dynamic> rideMap = {
+      'created_at': DateTime.now().toString(),
+      'rider_name': currentUserInfo.phone,
+      'rider_phone': currentUserInfo.phone,
+      'pickup_address': pickup.placeName,
+      'destination_address': destination.placeName,
+      'location': pickupMap,
+      'destination': destinationMap,
+      'payment_methode': 'cash',
+      'driver_id': 'waiting',
+    };
+
+    await rideRef.set(rideMap);
+  }
+
+  Future<void> resetApp() async {
     setState(() {
       polylineCoordinates.clear();
       _polylines.clear();
@@ -249,7 +290,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       drawerCanOpen = true;
     });
 
-    setupPositionLocator();
+    await setupPositionLocator();
   }
 
   @override
