@@ -13,6 +13,7 @@ import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:cab_rider/shared/global_variables.dart';
 import 'package:cab_rider/models/direction_details.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
@@ -30,6 +31,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Position currentPosition;
   double searchSheetHeight = 300;
   double rideDetailsSheetHeight = 0;
+  double requestingSheetHeght = 0;
 
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
@@ -223,6 +225,16 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       rideDetailsSheetHeight = 270;
       drawerCanOpen = false;
       // mapBottomPadding = 0; depends on platfrom
+    });
+  }
+
+  void showRequestingSheet() {
+    setState(() {
+      rideDetailsSheetHeight = 0;
+      requestingSheetHeght = 210;
+      mapBottomPadding = 200;
+
+      drawerCanOpen = true;
     });
   }
 
@@ -626,7 +638,84 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                       child: TaxiButton(
                         title: 'REQUEST CAB',
                         color: BrandColors.colorGreen,
-                        onPressed: () {},
+                        onPressed: () {
+                          showRequestingSheet();
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Requesting Ride Sheet
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AnimatedSize(
+              vsync: this,
+              duration: Duration(milliseconds: 150),
+              curve: Curves.easeIn,
+              child: Container(
+                height: requestingSheetHeght,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 15.0,
+                      spreadRadius: 0.5,
+                      offset: Offset(0.7, 0.7),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextLiquidFill(
+                        text: 'Requesting a Ride',
+                        waveColor: BrandColors.colorTextSemiLight,
+                        boxBackgroundColor: Colors.white,
+                        textStyle: TextStyle(
+                          fontSize: 22.0,
+                          fontFamily: 'Brand-Bold',
+                        ),
+                        boxHeight: 40.0,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          width: 1.0,
+                          color: BrandColors.colorLightGrayFair,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.close,
+                        size: 25,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      width: double.infinity,
+                      child: Text(
+                        'Cancel Ride',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12),
                       ),
                     )
                   ],
