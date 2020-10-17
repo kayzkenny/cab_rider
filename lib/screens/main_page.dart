@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cab_rider/helpers/fire_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,6 +9,8 @@ import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:cab_rider/screens/search_page.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
+import 'package:cab_rider/models/nearby_driver.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:cab_rider/widgets/progress_dialog.dart';
@@ -64,11 +67,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       CameraUpdate.newCameraPosition(cp),
     );
 
-    String address = await HelperMethods.findCoordinateAddress(
-      position,
-      context,
-    );
-    print(address);
+    await startGeofireListener();
   }
 
   Future<void> getDirection() async {
@@ -280,6 +279,58 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   }
 
   Future<void> cancelRequest() async => await rideRef.remove();
+
+  Future<void> startGeofireListener() async {
+    await Geofire.initialize('driversAvailable');
+
+    Geofire.queryAtLocation(
+      currentPosition.latitude,
+      currentPosition.longitude,
+      20,
+    ).listen((map) {
+      print(map);
+
+      if (map != null) {
+        var callBack = map['callBack'];
+
+        //latitude will be retrieved from map['latitude']
+        //longitude will be retrieved from map['longitude']
+
+        switch (callBack) {
+          case Geofire.onKeyEntered:
+            NearbyDriver nearbyDriver = NearbyDriver(
+              key: map['key'],
+              latitude: map['latitude'],
+              longitude: map['longitude'],
+            );
+
+            FireHelper.nearbyDriverList.add(nearbyDriver);
+            break;
+
+          case Geofire.onKeyExited:
+            FireHelper.removeFromList(map['key']);
+            break;
+
+          case Geofire.onKeyMoved:
+            // Update your key's location
+            NearbyDriver nearbyDriver = NearbyDriver(
+              key: map['key'],
+              latitude: map['latitude'],
+              longitude: map['longitude'],
+            );
+
+            FireHelper.updateNearbyLocation(nearbyDriver);
+            break;
+
+          case Geofire.onGeoQueryReady:
+            // All Intial Data is loaded
+            print('firehelper length: ${FireHelper.nearbyDriverList.length}');
+
+            break;
+        }
+      }
+    });
+  }
 
   Future<void> resetApp() async {
     setState(() {
