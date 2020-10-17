@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cab_rider/models/user.dart';
@@ -97,5 +99,12 @@ class HelperMethods {
         print(currentUserInfo.fullName);
       }
     });
+  }
+
+  static double generateRandomNumber(int max) {
+    var randomGenerator = Random();
+    int randInt = randomGenerator.nextInt(max);
+
+    return randInt.toDouble();
   }
 }

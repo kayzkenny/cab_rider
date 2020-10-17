@@ -29,20 +29,21 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
-  Completer<GoogleMapController> _controller = Completer();
-  GoogleMapController mapController;
-  double mapBottomPadding = 0;
   Position currentPosition;
-  double searchSheetHeight = 300;
-  double rideDetailsSheetHeight = 0;
-  double requestingSheetHeight = 0;
-  List<LatLng> polylineCoordinates = [];
-  Set<Polyline> _polylines = {};
-  Set<Marker> _markers = {};
-  Set<Circle> _circles = {};
-  DirectionDetails tripDirectionDetails;
-  bool drawerCanOpen = true;
   DatabaseReference rideRef;
+  GoogleMapController mapController;
+  bool drawerCanOpen = false;
+  bool nearbyDriversKeysLoaded = false;
+  Set<Circle> _circles = {};
+  Set<Marker> _markers = {};
+  Set<Polyline> _polylines = {};
+  double mapBottomPadding = 0;
+  double searchSheetHeight = 300;
+  double requestingSheetHeight = 0;
+  double rideDetailsSheetHeight = 0;
+  List<LatLng> polylineCoordinates = [];
+  DirectionDetails tripDirectionDetails;
+  Completer<GoogleMapController> _controller = Completer();
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -293,9 +294,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       if (map != null) {
         var callBack = map['callBack'];
 
-        //latitude will be retrieved from map['latitude']
-        //longitude will be retrieved from map['longitude']
-
         switch (callBack) {
           case Geofire.onKeyEntered:
             NearbyDriver nearbyDriver = NearbyDriver(
@@ -305,10 +303,15 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             );
 
             FireHelper.nearbyDriverList.add(nearbyDriver);
+
+            if (nearbyDriversKeysLoaded) {
+              updateDriversOnMap();
+            }
             break;
 
           case Geofire.onKeyExited:
             FireHelper.removeFromList(map['key']);
+            updateDriversOnMap();
             break;
 
           case Geofire.onKeyMoved:
@@ -320,16 +323,38 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             );
 
             FireHelper.updateNearbyLocation(nearbyDriver);
+            updateDriversOnMap();
             break;
 
           case Geofire.onGeoQueryReady:
-            // All Intial Data is loaded
-            print('firehelper length: ${FireHelper.nearbyDriverList.length}');
+            nearbyDriversKeysLoaded = true;
+            updateDriversOnMap();
 
             break;
         }
       }
     });
+  }
+
+  void updateDriversOnMap() {
+    setState(() => _markers.clear());
+
+    Set<Marker> tempMarkers = Set<Marker>();
+
+    for (NearbyDriver driver in FireHelper.nearbyDriverList) {
+      LatLng driverPosition = LatLng(driver.latitude, driver.longitude);
+
+      Marker thisMarker = Marker(
+        markerId: MarkerId('driver${driver.key}'),
+        position: driverPosition,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        rotation: HelperMethods.generateRandomNumber(360),
+      );
+
+      tempMarkers.add(thisMarker);
+    }
+
+    setState(() => _markers = tempMarkers);
   }
 
   Future<void> resetApp() async {
