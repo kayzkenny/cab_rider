@@ -1,11 +1,12 @@
+import 'dart:io';
 import 'dart:async';
 
-import 'package:cab_rider/helpers/fire_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cab_rider/styles/styles.dart';
 import 'package:cab_rider/providers/app_data.dart';
+import 'package:cab_rider/helpers/fire_helper.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:cab_rider/screens/search_page.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
@@ -31,6 +32,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Position currentPosition;
   DatabaseReference rideRef;
+  BitmapDescriptor nearbyIcon;
   GoogleMapController mapController;
   bool drawerCanOpen = false;
   bool nearbyDriversKeysLoaded = false;
@@ -336,27 +338,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     });
   }
 
-  void updateDriversOnMap() {
-    setState(() => _markers.clear());
-
-    Set<Marker> tempMarkers = Set<Marker>();
-
-    for (NearbyDriver driver in FireHelper.nearbyDriverList) {
-      LatLng driverPosition = LatLng(driver.latitude, driver.longitude);
-
-      Marker thisMarker = Marker(
-        markerId: MarkerId('driver${driver.key}'),
-        position: driverPosition,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        rotation: HelperMethods.generateRandomNumber(360),
-      );
-
-      tempMarkers.add(thisMarker);
-    }
-
-    setState(() => _markers = tempMarkers);
-  }
-
   Future<void> resetApp() async {
     setState(() {
       polylineCoordinates.clear();
@@ -372,6 +353,41 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     await setupPositionLocator();
   }
 
+  Future<void> createMarker() async {
+    if (nearbyIcon == null) {
+      ImageConfiguration imageConfiguration = createLocalImageConfiguration(
+        context,
+        size: Size(2, 2),
+      );
+
+      nearbyIcon = await BitmapDescriptor.fromAssetImage(
+        imageConfiguration,
+        (Platform.isIOS) ? 'images/car_ios.png' : 'images/car_android.png',
+      );
+    }
+  }
+
+  void updateDriversOnMap() {
+    setState(() => _markers.clear());
+
+    Set<Marker> tempMarkers = Set<Marker>();
+
+    for (NearbyDriver driver in FireHelper.nearbyDriverList) {
+      LatLng driverPosition = LatLng(driver.latitude, driver.longitude);
+
+      Marker thisMarker = Marker(
+        markerId: MarkerId('driver${driver.key}'),
+        position: driverPosition,
+        icon: nearbyIcon,
+        rotation: HelperMethods.generateRandomNumber(360),
+      );
+
+      tempMarkers.add(thisMarker);
+    }
+
+    setState(() => _markers = tempMarkers);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -380,6 +396,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    createMarker();
     return Scaffold(
       key: scaffoldKey,
       drawer: Container(
