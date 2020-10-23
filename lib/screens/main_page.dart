@@ -16,6 +16,7 @@ import 'package:cab_rider/widgets/brand_divider.dart';
 import 'package:cab_rider/helpers/helper_methods.dart';
 import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:cab_rider/shared/global_variables.dart';
+import 'package:cab_rider/widgets/no_driver_dialog.dart';
 import 'package:cab_rider/models/direction_details.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -43,6 +44,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   double searchSheetHeight = 300;
   double requestingSheetHeight = 0;
   double rideDetailsSheetHeight = 0;
+  List<NearbyDriver> availableDrivers;
   List<LatLng> polylineCoordinates = [];
   DirectionDetails tripDirectionDetails;
   Completer<GoogleMapController> _controller = Completer();
@@ -368,6 +370,26 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         (Platform.isIOS) ? 'images/car_ios.png' : 'images/car_android.png',
       );
     }
+  }
+
+  Future<void> findDriver() async {
+    if (availableDrivers.length == 0) {
+      await cancelRequest();
+      await resetApp();
+      noDriverFound();
+      return;
+    }
+
+    NearbyDriver driver = availableDrivers[0];
+    availableDrivers.removeAt(0);
+    print(driver.key);
+  }
+
+  void noDriverFound() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => NoDriverDialog());
   }
 
   void updateDriversOnMap() {
@@ -784,8 +806,10 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                       child: TaxiButton(
                         title: 'REQUEST CAB',
                         color: BrandColors.colorGreen,
-                        onPressed: () {
-                          showRequestingSheet();
+                        onPressed: () async {
+                          await showRequestingSheet();
+                          availableDrivers = FireHelper.nearbyDriverList;
+                          await findDriver();
                         },
                       ),
                     )
