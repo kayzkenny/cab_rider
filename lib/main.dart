@@ -6,11 +6,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cab_rider/screens/main_page.dart';
 import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/screens/login_page.dart';
+import 'package:cab_rider/shared/global_variables.dart';
 import 'package:cab_rider/screens/registration_page.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final FirebaseApp app = await Firebase.initializeApp(
+  await Firebase.initializeApp(
     // name property throws an error on hot restart, default param used instead
     // name: 'db2',
     // IOS FirebaseOptions Not Yet Configures
@@ -30,6 +32,7 @@ Future<void> main() async {
             databaseURL: 'https://geetaxi-1e769.firebaseio.com',
           ),
   );
+  currentFirebaseUser = auth.FirebaseAuth.instance.currentUser;
   runApp(MyApp());
 }
 
@@ -46,7 +49,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        initialRoute: RegistrationPage.id,
+        initialRoute: currentFirebaseUser == null ? LoginPage.id : MainPage.id,
         routes: {
           MainPage.id: (context) => MainPage(),
           LoginPage.id: (context) => LoginPage(),

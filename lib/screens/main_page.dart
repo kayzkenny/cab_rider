@@ -34,7 +34,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   DatabaseReference rideRef;
   BitmapDescriptor nearbyIcon;
   GoogleMapController mapController;
-  bool drawerCanOpen = false;
+  bool drawerCanOpen = true;
   bool nearbyDriversKeysLoaded = false;
   Set<Circle> _circles = {};
   Set<Marker> _markers = {};
@@ -69,6 +69,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(cp),
     );
+
+    // set the current pickup address with provider
+    await HelperMethods.findCoordinateAddress(position, context);
 
     await startGeofireListener();
   }
@@ -268,13 +271,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
     Map<String, dynamic> rideMap = {
       'created_at': DateTime.now().toString(),
-      'rider_name': currentUserInfo.phone,
+      'rider_name': currentUserInfo.fullName,
       'rider_phone': currentUserInfo.phone,
       'pickup_address': pickup.placeName,
       'destination_address': destination.placeName,
       'location': pickupMap,
       'destination': destinationMap,
-      'payment_methode': 'cash',
+      'payment_method': 'cash',
       'driver_id': 'waiting',
     };
 
