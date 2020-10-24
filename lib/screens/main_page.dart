@@ -381,8 +381,28 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     }
 
     NearbyDriver driver = availableDrivers[0];
+    await notifyDriver(driver);
     availableDrivers.removeAt(0);
     print(driver.key);
+  }
+
+  Future<void> notifyDriver(NearbyDriver driver) async {
+    DatabaseReference driverTripRef = FirebaseDatabase.instance
+        .reference()
+        .child('drivers/${driver.key}/newtrip');
+    DatabaseReference tokenRef = FirebaseDatabase.instance
+        .reference()
+        .child('drivers/${driver.key}/token');
+
+    await driverTripRef.set(rideRef.key);
+    // Get and notify driver using token
+    DataSnapshot snapshot = await tokenRef.once();
+
+    if (snapshot.value != null) {
+      String token = snapshot.value.toString();
+      // Send notification to selected driver
+      HelperMethods.sendNotification(token, context, rideRef.key);
+    }
   }
 
   void noDriverFound() {

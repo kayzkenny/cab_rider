@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cab_rider/models/user.dart';
@@ -106,5 +108,48 @@ class HelperMethods {
     int randInt = randomGenerator.nextInt(max);
 
     return randInt.toDouble();
+  }
+
+  static Future sendNotification(
+    String token,
+    BuildContext context,
+    String rideID,
+  ) async {
+    var destination = Provider.of<AppData>(
+      context,
+      listen: false,
+    ).destinationAddress;
+
+    Map<String, String> headerMap = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=$serverToken',
+    };
+
+    Map notificationMap = {
+      'title': 'NEW TRIP REQUEST',
+      'body': 'Destination, ${destination.placeName}',
+    };
+
+    Map dataMap = {
+      'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      'id': '1',
+      'status': 'done',
+      'ride_id': rideID,
+    };
+
+    Map bodyMap = {
+      'notification': notificationMap,
+      'data': dataMap,
+      'priority': 'high',
+      'to': token,
+    };
+
+    var response = await http.post(
+      fcmEndpoint,
+      headers: headerMap,
+      body: jsonEncode(bodyMap),
+    );
+
+    print(response.body);
   }
 }
