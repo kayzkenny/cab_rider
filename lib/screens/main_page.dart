@@ -22,6 +22,7 @@ import 'package:cab_rider/models/direction_details.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cab_rider/widgets/collect_payment_dialog.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class MainPage extends StatefulWidget {
@@ -52,6 +53,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   DirectionDetails tripDirectionDetails;
   Completer<GoogleMapController> _controller = Completer();
   StreamSubscription<Event> rideSubscription;
+  bool isRequestingLocationDetails = false;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -260,6 +262,49 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     });
   }
 
+  Future<void> updateToDestination(LatLng driverLocation) async {
+    if (!isRequestingLocationDetails) {
+      isRequestingLocationDetails = true;
+
+      var destination =
+          Provider.of<AppData>(context, listen: false).destinationAddress;
+      var destinationLatLng =
+          LatLng(destination.latitude, destination.longitude);
+      var thisDetails = await HelperMethods.getDirectionDetails(
+          driverLocation, destinationLatLng);
+
+      if (thisDetails == null) {
+        return;
+      }
+
+      setState(() {
+        tripStatusDisplay =
+            'Driving to Destination - ${thisDetails.durationText}';
+      });
+
+      isRequestingLocationDetails = false;
+    }
+  }
+
+  Future<void> updateToPickup(LatLng driverLocation) async {
+    if (!isRequestingLocationDetails) {
+      isRequestingLocationDetails = true;
+      var positionLatLng =
+          LatLng(currentPosition.latitude, currentPosition.longitude);
+      var thisDetails = await HelperMethods.getDirectionDetails(
+          driverLocation, positionLatLng);
+
+      if (thisDetails == null) {
+        return;
+      }
+
+      setState(() {
+        tripStatusDisplay = 'Driver is Arriving - ${thisDetails.durationText}';
+      });
+      isRequestingLocationDetails = false;
+    }
+  }
+
   Future<void> createRideRequest() async {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
 
@@ -297,7 +342,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
 
     await rideRef.set(rideMap);
 
-    rideSubscription = rideRef.onValue.listen((event) {
+    rideSubscription = rideRef.onValue.listen((event) async {
       if (event.snapshot.value == null) {
         return;
       }
@@ -320,13 +365,62 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
         });
       }
 
+      //get and use driver location updates
+      if (event.snapshot.value['driver_location'] != null) {
+        double driverLat = double.parse(
+            event.snapshot.value['driver_location']['latitude'].toString());
+        double driverLng = double.parse(
+            event.snapshot.value['driver_location']['longitude'].toString());
+        LatLng driverLocation = LatLng(driverLat, driverLng);
+
+        if (status == 'accepted') {
+          updateToPickup(driverLocation);
+        } else if (status == 'ontrip') {
+          updateToDestination(driverLocation);
+        } else if (status == 'arrived') {
+          setState(() {
+            tripStatusDisplay = 'Driver has arrived';
+          });
+        }
+      }
+
       if (event.snapshot.value['status'] != null) {
         status = event.snapshot.value['status'].toString();
       }
 
       if (status == 'accepted') {
         showTripSheet();
+        await Geofire.stopListener();
+        removeGeofireMarkers();
       }
+
+      if (status == 'ended') {
+        if (event.snapshot.value['fares'] != null) {
+          int fares = int.parse(event.snapshot.value['fares'].toString());
+          var response = await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) => CollectPaymentDialog(
+              paymentMethod: 'cash',
+              fares: fares,
+            ),
+          );
+
+          if (response == 'close') {
+            rideRef.onDisconnect();
+            rideRef = null;
+            rideSubscription.cancel();
+            rideSubscription = null;
+            await resetApp();
+          }
+        }
+      }
+    });
+  }
+
+  void removeGeofireMarkers() {
+    setState(() {
+      _markers.removeWhere((m) => m.markerId.value.contains('driver'));
     });
   }
 
@@ -401,8 +495,14 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       _circles.clear();
       rideDetailsSheetHeight = 0;
       requestingSheetHeight = 0;
+      tripSheetHeight = 0;
       searchSheetHeight = 300;
       drawerCanOpen = true;
+      status = '';
+      driverFullName = '';
+      driverCarDetails = '';
+      driverPhoneNumber = '';
+      tripStatusDisplay = 'Driver is Arriving';
     });
 
     await setupPositionLocator();
