@@ -42,6 +42,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
   String appState = 'NORMAL';
+  double tripSheetHeight = 0;
   double mapBottomPadding = 0;
   double searchSheetHeight = 300;
   double requestingSheetHeight = 0;
@@ -50,6 +51,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   List<LatLng> polylineCoordinates = [];
   DirectionDetails tripDirectionDetails;
   Completer<GoogleMapController> _controller = Completer();
+  StreamSubscription<Event> rideSubscription;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -250,6 +252,14 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     await createRideRequest();
   }
 
+  void showTripSheet() {
+    setState(() {
+      rideDetailsSheetHeight = 0;
+      tripSheetHeight = 300;
+      mapBottomPadding = 300;
+    });
+  }
+
   Future<void> createRideRequest() async {
     rideRef = FirebaseDatabase.instance.reference().child('rideRequest').push();
 
@@ -286,6 +296,38 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     };
 
     await rideRef.set(rideMap);
+
+    rideSubscription = rideRef.onValue.listen((event) {
+      if (event.snapshot.value == null) {
+        return;
+      }
+      // get car details
+      if (event.snapshot.value['car_details'] != null) {
+        setState(() {
+          driverCarDetails = event.snapshot.value['car_details'].toString();
+        });
+      }
+      // get driver name
+      if (event.snapshot.value['driver_name'] != null) {
+        setState(() {
+          driverFullName = event.snapshot.value['driver_name'].toString();
+        });
+      }
+      // get driver phone number
+      if (event.snapshot.value['driver_phone'] != null) {
+        setState(() {
+          driverPhoneNumber = event.snapshot.value['driver_phone'].toString();
+        });
+      }
+
+      if (event.snapshot.value['status'] != null) {
+        status = event.snapshot.value['status'].toString();
+      }
+
+      if (status == 'accepted') {
+        showTripSheet();
+      }
+    });
   }
 
   Future<void> cancelRequest() async {
@@ -960,6 +1002,137 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         style: TextStyle(fontSize: 12),
                       ),
                     )
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Trip Sheet
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AnimatedSize(
+              vsync: this,
+              duration: Duration(milliseconds: 150),
+              curve: Curves.easeIn,
+              child: Container(
+                height: tripSheetHeight,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    topRight: Radius.circular(15),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 15.0,
+                      spreadRadius: 0.5,
+                      offset: Offset(0.7, 0.7),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      tripStatusDisplay,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Brand-Bold',
+                      ),
+                    ),
+                    BrandDivider(),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          driverCarDetails,
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: BrandColors.colorTextLight,
+                          ),
+                        ),
+                        Text(
+                          driverFullName,
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                    BrandDivider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(25),
+                                ),
+                                border: Border.all(
+                                  width: 1.0,
+                                  color: BrandColors.colorTextLight,
+                                ),
+                              ),
+                              child: Icon(Icons.call),
+                            ),
+                            SizedBox(height: 10),
+                            Text('Call'),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(25),
+                                ),
+                                border: Border.all(
+                                  width: 1.0,
+                                  color: BrandColors.colorTextLight,
+                                ),
+                              ),
+                              child: Icon(Icons.list),
+                            ),
+                            SizedBox(height: 10),
+                            Text('Details'),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(25),
+                                ),
+                                border: Border.all(
+                                  width: 1.0,
+                                  color: BrandColors.colorTextLight,
+                                ),
+                              ),
+                              child: Icon(Icons.clear),
+                            ),
+                            SizedBox(height: 10),
+                            Text('Cancel'),
+                          ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
