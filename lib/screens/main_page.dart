@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cab_rider/styles/styles.dart';
+import 'package:cab_rider/ride_variables.dart';
 import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/helpers/fire_helper.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
@@ -40,6 +41,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   Set<Circle> _circles = {};
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
+  String appState = 'NORMAL';
   double mapBottomPadding = 0;
   double searchSheetHeight = 300;
   double requestingSheetHeight = 0;
@@ -286,7 +288,13 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
     await rideRef.set(rideMap);
   }
 
-  Future<void> cancelRequest() async => await rideRef.remove();
+  Future<void> cancelRequest() async {
+    await rideRef.remove();
+
+    setState(() {
+      appState = 'NORMAL';
+    });
+  }
 
   Future<void> startGeofireListener() async {
     await Geofire.initialize('driversAvailable');
@@ -402,7 +410,42 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
       String token = snapshot.value.toString();
       // Send notification to selected driver
       HelperMethods.sendNotification(token, context, rideRef.key);
+    } else {
+      return;
     }
+
+    const oneSecTick = Duration(seconds: 1);
+    var timer = Timer.periodic(oneSecTick, (timer) async {
+      // stop timer when ride request is cancelled
+      if (appState != 'REQUESTING') {
+        await driverTripRef.set('cancelled');
+        driverTripRef.onDisconnect();
+        timer.cancel();
+        driverRequestTimeout = 30;
+      }
+
+      driverRequestTimeout--;
+
+      // a value event listener for driver accepting trip request
+      driverTripRef.onValue.listen((event) {
+        // confrim that driver has clicked accepted for the new trip request
+        if (event.snapshot.value.toString() == 'accepted') {
+          driverTripRef.onDisconnect();
+          timer.cancel();
+          driverRequestTimeout = 30;
+        }
+      });
+
+      if (driverRequestTimeout == 0) {
+        // Inform driver that trip has timed out
+        await driverTripRef.set('timeout');
+        driverTripRef.onDisconnect();
+        driverRequestTimeout = 30;
+        timer.cancel();
+        // find a new nearby driver
+        await findDriver();
+      }
+    });
   }
 
   void noDriverFound() {
@@ -827,6 +870,9 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                         title: 'REQUEST CAB',
                         color: BrandColors.colorGreen,
                         onPressed: () async {
+                          setState(() {
+                            appState = 'REQUESTING';
+                          });
                           await showRequestingSheet();
                           availableDrivers = FireHelper.nearbyDriverList;
                           await findDriver();
