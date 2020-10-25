@@ -10,6 +10,7 @@ import 'package:cab_rider/providers/app_data.dart';
 import 'package:cab_rider/helpers/fire_helper.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:cab_rider/screens/search_page.dart';
+import 'package:cab_rider/screens/profile_page.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/models/nearby_driver.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
@@ -641,38 +642,48 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               Container(
                 height: 160,
                 color: Colors.white,
-                child: DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'images/user_icon.png',
-                        height: 60,
-                        width: 60,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfilePage(),
                       ),
-                      SizedBox(width: 15),
-                      Container(
-                        width: 140,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Kenny',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'Brand-Bold',
-                              ),
-                              overflow: TextOverflow.clip,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'View Profile',
-                            ),
-                          ],
+                    );
+                  },
+                  child: DrawerHeader(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/user_icon.png',
+                          height: 60,
+                          width: 60,
                         ),
-                      ),
-                    ],
+                        SizedBox(width: 15),
+                        Container(
+                          width: 140,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Kenny',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: 'Brand-Bold',
+                                ),
+                                overflow: TextOverflow.clip,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'View Profile',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
