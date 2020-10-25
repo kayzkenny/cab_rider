@@ -1,9 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:cab_rider/models/user.dart';
+import 'package:cab_rider/screens/login_page.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
 import 'package:cab_rider/shared/global_variables.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -11,6 +15,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final _auth = auth.FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   // form values
   String _currentPhoneNumber = currentUserInfo.phone;
@@ -21,6 +26,22 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
+        centerTitle: true,
+        actions: [
+          FlatButton(
+            onPressed: () async {
+              await _auth.signOut();
+              Navigator.pushReplacementNamed(
+                context,
+                LoginPage.id,
+              );
+            },
+            child: Text(
+              'Logout',
+              style: TextStyle(color: Colors.white),
+            ),
+          )
+        ],
       ),
       body: SafeArea(
         child: Container(

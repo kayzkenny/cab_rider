@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:connectivity/connectivity.dart';
@@ -8,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cab_rider/screens/main_page.dart';
 import 'package:cab_rider/widgets/taxi_button.dart';
 import 'package:cab_rider/screens/brand_colors.dart';
+import 'package:cab_rider/widgets/progress_dialog.dart';
 import 'package:cab_rider/screens/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,19 +19,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   ConnectivityResult _connectionStatus;
-
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   final _auth = FirebaseAuth.instance;
-
-  final Connectivity _connectivity = Connectivity();
-
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
+  final _connectivity = Connectivity();
   final formKey = GlobalKey<FormState>();
-
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
   void showSnackbar(String title) {
